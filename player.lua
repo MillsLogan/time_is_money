@@ -3,18 +3,19 @@ player = {
     y = 0,
     width = 8,
     height = 8,
-    groundspeed = 1,
-    airspeed = 0.05,
+    groundspeed = 0.25,
+    airspeed = 0.025,
     dx = 0,
     dy = 0,
     onground = true,
     onwall = 0,
-    jump_power = 3,
-    gravity = 0.4,
+    jump_power = 2,
+    gravity = 0.125,
     max_fall_speed = 4,
     animations = {
-        idle = new_animation({64, 65, 66, 67, 68}, 0.3, 40),
-        walk = new_animation({80, 81}, 0.25)
+        idle = new_animation({64, 65, 66, 67, 68}, 0.3, 100),
+        walk = new_animation({80, 81}, 0.25),
+        onwall = new_animation({96}, 0)
     },
     current_animation = "walk",
     x_flip = false,
@@ -27,6 +28,7 @@ function player:process_input()
         self.dx = 0
         speed = self.groundspeed
     else
+        self.dx = self.dx * 0.9 -- air resistance
         speed = self.airspeed
     end
 
@@ -52,6 +54,19 @@ function player:process_input()
             self.animations[self.current_animation]:reset()
         end
     end
+
+    if self.onwall ~= 0 then
+        if self.current_animation ~= "onwall" then
+            self.current_animation = "onwall"
+            if self.onwall == 1 then
+                self.x_flip = false
+            else
+                self.x_flip = true
+            end
+            self.dy = 0
+            self.animations[self.current_animation]:reset()
+        end
+    end
     
 
     if self.onground and btn(4) then
@@ -59,7 +74,7 @@ function player:process_input()
         self.onground = false
     elseif self.onwall ~= 0 and btn(4) then
         self.dy = -self.jump_power
-        self.dx = self.dx + self.onwall * self.groundspeed / 2
+        self.dx = self.dx + self.onwall * self.jump_power / 2
         self.onwall = 0
     else
         self.dy = self.dy + self.gravity
