@@ -1,44 +1,41 @@
-function new_animation(frames, interval, start_delay)
-    local anim = {}
-    anim.frames = frames or {}
-    anim.currentFrame = 1
-    anim.timer = 0
-    anim.interval = interval or 0.1
-    anim.start_delay = start_delay or 0
-    anim.started = false
-
-    function anim:reset()
-        self.currentFrame = 1
-        self.timer = 0
-        self.started = false
-    end
-    
-    function anim:update()
-        self.timer = self.timer + self.interval
-
-        if not self.started then
-            if self.timer >= self.start_delay then
-                self.started = true
-                self.timer = 0
-            else
-                return
+function new_animation(min, max, delay, start_delay)
+    local animation = {
+        sp = min,
+        start_delay = start_delay,
+        lowest_spr = min,
+        max_spr = max,
+        spr_delay = delay,
+        timer = time(),
+    }
+ 
+ 
+    function animation:update()
+        if not self.started and time() - self.timer < self.start_delay then
+            return
+        else
+            self.started = true
+        end
+        if time() - self.timer > self.spr_delay then
+            self.timer = time()
+            self.sp += 1
+            if self.sp > self.max_spr then
+                self.sp = self.lowest_spr
+                if self.start_delay > 0 then
+                    self.started = false
+                end
             end
         end
-
-        if self.timer >= 1 then
-            self.currentFrame = self.currentFrame + 1
-            self.timer = 0
-        end
-        if self.currentFrame > #self.frames then
-            self.currentFrame = 1
-            self.started = false
-        end
     end
-    
-    function anim:draw(x, y, xflip, yflip)
-        spr(self.frames[self.currentFrame], x, y, 1, 1, xflip, yflip)
-    end
-
-    return anim
+    return animation
 end
+ 
+ 
+ 
+ 
+run_a = new_animation(69, 71, 0.1, 0)
+idol_a = new_animation(64, 68, 0.2, 4)
+jump_a = new_animation(72, 72, 0, 0)
+fall_a = new_animation(73, 74, 0, 0)
+slide_a = new_animation(75, 75, 0.1, 0)
 
+ 

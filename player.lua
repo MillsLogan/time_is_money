@@ -1,152 +1,153 @@
 player = {
-    x = 0,
-    y = 0,
-    width = 8,
-    height = 8,
-    groundspeed = 0.25,
-    airspeed = 0.025,
+    anim = run_a,
+    x = 20,
+    y = 20,
     dx = 0,
     dy = 0,
-    onground = true,
-    onwall = 0,
-    jump_power = 2,
-    gravity = 0.125,
-    max_fall_speed = 4,
-    animations = {
-        idle = new_animation({64, 65, 66, 67, 68}, 0.3, 100),
-        walk = new_animation({80, 81}, 0.25),
-        onwall = new_animation({96}, 0)
-    },
-    current_animation = "walk",
-    x_flip = false,
-    y_flip = false
-}
-
-function player:process_input()
-    local speed = 0
-    if self.onground then
-        self.dx = 0
-        speed = self.groundspeed
-    else
-        self.dx = self.dx * 0.9 -- air resistance
-        speed = self.airspeed
+    w = 8,
+    h = 8,
+    speed = 2,
+    max_dx = 2,
+    max_dy = 4,
+    onground = false,
+    jumppower = -4,
+    xflp = false,
+    isshot = false
+ }
+ 
+ 
+ function player:update()
+    self:input()
+    self:move()
+    self:animate()
+ end
+ 
+ 
+ function player:draw()
+    spr(self.anim.sp, self.x, self.y, 1, 1, self.xflp)
+ end
+ 
+ 
+ function player:animate()
+    -- Idle
+    if abs(self.dx) < .1 and self.dy == 0 then
+        self.anim = idol_a
+    elseif self.dy == 0 then
+        if abs(self.dx) > 0 and not btn(0) and not btn(1) then
+            self.anim = slide_a
+        else
+            self.anim = run_a
+        end
+    elseif self.dy > 0 then
+        self.anim = fall_a
+    elseif self.dy < 0 then
+        self.anim = jump_a
     end
-
+    self.anim:update()
+ end
+ 
+ 
+ function player:input()
+    if self.isshot then
+        return
+    end
+    self.dy = self.dy + gravity
+    self.dx = self.dx * friction
     if btn(0) then
-        self.dx = self.dx - speed
-        self.x_flip = true
+        self.dx -= 1
+        self.xflp = true
+    elseif btn(1) then
+        self.dx += 1
+        self.xflp = false
     end
-    if btn(1) then
-        self.dx = self.dx + speed
-        self.x_flip = false
+    if btn(5) and self.onground then
+        self.dy = self.jumppower
     end
-
-    self:process_x_collisions()
-
-    if self.dx == 0 then
-        if self.current_animation ~= "idle" then
-            self.current_animation = "idle"
-            self.animations[self.current_animation]:reset()
-        end
-    else
-        if self.current_animation ~= "walk" then
-            self.current_animation = "walk"
-            self.animations[self.current_animation]:reset()
-        end
+ 
+ 
+    if self.onground then
+        self.shotavailable = true
     end
-
-    if self.onwall ~= 0 then
-        if self.current_animation ~= "onwall" then
-            self.current_animation = "onwall"
-            if self.onwall == 1 then
-                self.x_flip = false
+ 
+ 
+    if not self.isshot and self.shotavailable then
+        if btn(4) then
+            self.isshot = true
+            self.shotavailable = false
+            if self.xflp then
+                self.dx = -5
             else
-                self.x_flip = true
+                self.dx = 5
             end
-            self.dy = 0
-            self.animations[self.current_animation]:reset()
         end
     end
-    
-
-    if self.onground and btn(4) then
-        self.dy = -self.jump_power
-        self.onground = false
-    elseif self.onwall ~= 0 and btn(4) then
-        self.dy = -self.jump_power
-        self.dx = self.dx + self.onwall * self.jump_power / 2
-        self.onwall = 0
-    else
-        self.dy = self.dy + self.gravity
-        if self.dy > self.max_fall_speed then
-            self.dy = self.max_fall_speed
-        end
+ 
+ 
+    if not self.isshot then
+        self:limit_speed()
     end
-    self:process_x_collisions()
-    self:process_y_collisisons()
-end
-
-function player:process_y_collisisons()
-    local new_x = self.x
+ end
+ 
+ 
+ function player:limit_speed()
+    if self.dx > self.max_dx then
+        self.dx = self.max_dx
+    elseif self.dx < -self.max_dx then
+        self.dx = -self.max_dx
+    end
+    if self.dy > self.max_dy then
+        self.dy = self.max_dy
+    elseif self.dy < -self.max_dy then
+        self.dy = -self.max_dy
+    end
+ end
+ 
+ 
+ function player:move()
+    local new_x = self.x + self.dx
     local new_y = self.y + self.dy
-    local x1 = flr(new_x / 8)
-    local x2 = flr((new_x + self.width - 1) / 8)
-    local y1 = flr(new_y / 8)
-    local y2 = flr((new_y + self.height - 1) / 8)
+   
+    -- Vertical collisions
     if self.dy > 0 then
-        if fget(mget(x1, y2), 0) or fget(mget(x2, y2), 0) then
-            self.y = y2 * 8 - self.height
+        if not collide_map({x=new_x, y=new_y, w=self.w, h=self.h}, "down", 0) then
+            self.y = new_y
+            self.onground = false
+        else
             self.dy = 0
             self.onground = true
-        else
-            self.y = new_y
-            self.onground = false
+            self.y = flr(new_y/8)*8
         end
     elseif self.dy < 0 then
-        if fget(mget(x1, y1), 0) or fget(mget(x2, y1), 0) then
-            self.y = y1 * 8 + 8
-            self.dy = 0
-            self.onground = false
-        else
+        if not collide_map({x=new_x, y=new_y, w=self.w, h=self.h}, "up", 0) then
             self.y = new_y
             self.onground = false
+        else
+            self.dy = 0
+            self.y = flr(new_y/8)*8
         end
     end
-end
-
-function player:process_x_collisions()
-    local new_x = self.x + self.dx
-    local new_y = self.y
-    local x1 = flr(new_x / 8)
-    local x2 = flr((new_x + self.width) / 8)
-    local y1 = flr(new_y / 8)
-    local y2 = flr((new_y + self.height - 1) / 8)
+ 
+ 
+    -- Horizontal collisions
     if self.dx > 0 then
-        if fget(mget(x2, y1), 0) or fget(mget(x2, y2), 0) then
-            self.x = x2 * 8 - self.width
-            self.dx = 0
-            self.onwall = -1
-        else
+        if not collide_map({x=new_x, y=self.y, w=self.w, h=self.h}, "right", 0) then
             self.x = new_x
-            self.onwall = 0
+        else
+            self.dx = 0
+            self.isshot = false
+            self.x = flr((new_x+1)/8)*8
         end
     elseif self.dx < 0 then
-        if fget(mget(x1, y1), 0) or fget(mget(x1, y2), 0) then
-            self.x = x1 * 8 + self.width
-            self.dx = 0
-            self.onwall = 1
-        else
+        if not collide_map({x=new_x, y=self.y, w=self.w, h=self.h}, "left", 0) then
             self.x = new_x
-            self.onwall = 0
+        else
+            self.dx = 0
+            self.isshot = false
+            self.x = flr((new_x+1)/8)*8
         end
     end
-end
-
-function player:update()
-    self:process_input()
-    self.animations[self.current_animation]:update()
-end
-
-function player:draw()
-    self.animations[self.current_animation]:draw(self.x, self.y, self.x_flip, self.y_flip)
-end
+ end
+ 
+ 
+ 
+ 
