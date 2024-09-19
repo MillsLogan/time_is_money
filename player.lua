@@ -31,8 +31,9 @@ end
  
  
 function player:animate()
-    -- Idle
-    if abs(self.dx) < .1 and self.dy == 0 then
+    if self.onwall ~= "none" then
+        self.anim = wallslide_a
+    elseif abs(self.dx) < .1 and self.dy == 0 then
         self.anim = idol_a
     elseif self.dy == 0 then
         if abs(self.dx) > 0 and not btn(0) and not btn(1) then
@@ -40,6 +41,7 @@ function player:animate()
         else
             self.anim = run_a
         end
+    
     elseif self.dy > 0 then
         self.anim = fall_a
     elseif self.dy < 0 then
@@ -102,7 +104,12 @@ function player:limit_speed()
     elseif self.dx < -self.max_dx then
         self.dx = -self.max_dx
     end
-    if self.dy > self.max_dy then
+
+    if self.onwall ~= "none" then
+        if self.dy > self.max_dy/4 then
+            self.dy = self.max_dy/4
+        end
+    elseif self.dy > self.max_dy then
         self.dy = self.max_dy
     elseif self.dy < -self.max_dy then
         self.dy = -self.max_dy
