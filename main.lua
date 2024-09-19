@@ -3,8 +3,8 @@
 
 function _init()
     gravity=0.3
-    friction=0.85
-   
+    groundfriction=0.85
+    airfriction=0.98
    
     --simple camera
     cam_x=0

@@ -35,7 +35,7 @@ end
 run_a = new_animation(69, 71, 0.1, 0)
 idol_a = new_animation(64, 68, 0.2, 4)
 jump_a = new_animation(72, 72, 0, 0)
-fall_a = new_animation(73, 74, 0, 0)
+fall_a = new_animation(73, 74, 0.05, 0)
 slide_a = new_animation(75, 75, 0.1, 0)
 
  
