@@ -1,7 +1,7 @@
 player = {
     anim = idol_a,
-    x = 20,
-    y = 20,
+    x = 24,
+    y = 24,
     dx = 0,
     dy = 0,
     w = 8,
@@ -13,7 +13,7 @@ player = {
     onground = false,
     jumppower = -4,
     walljump = 3,
-    xflp = false,
+    xflp = true,
     onwall = "none"
  }
  
