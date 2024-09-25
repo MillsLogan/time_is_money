@@ -3,9 +3,9 @@
 
 function _init()
   gravity=0.3
-  groundfriction=0.85
+  groundfriction=0.70
   airfriction=0.98
-  collectables = {new_money(0, 164), new_money(10, 164), new_money(20, 164)}
+  collectables = {new_money(64, 80), new_money(10, 164), new_money(20, 164)}
 
 
   --map limits
@@ -16,6 +16,7 @@ end
 
 function _update()
   for i=1,#collectables do
+    collectables[i]:check_collision(player)
     collectables[i]:update()
   end
   player:update()

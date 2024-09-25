@@ -7,8 +7,8 @@ cam = {
  
  
  function cam:update()
-    self.x = player.x - 64 + (player.w / 2)
-    self.y = player.y - 64 + (player.h / 2)
+    self.x = 0 --player.x - 64 + (player.w / 2)
+    self.y = 0
     if self.x < map_start then
         self.x = map_start
     end
