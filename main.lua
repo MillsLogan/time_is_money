@@ -2,27 +2,40 @@
 
 
 function _init()
-  last_time=time()
+  timer=30
   gravity=0.3
   groundfriction=0.70
   airfriction=0.98
-  collectables = {new_money(64, 80), new_money(10, 164), new_money(20, 164)}
-
+  collectables = {new_money(6*8, 13*8)}
+  enemies = {new_fly(52,24)}
 
   --map limits
   map_start=0
   map_end=1024
 end
     
+function reset()
+  player:reset()
+  timer=30
+  collectables = {new_money(64, 80), new_money(10, 164), new_money(20, 164)}
+end
 
 function _update()
-  delta_t=time()-last_time
-  last_time=time()
+  timer-=0.05
 
+  if timer<=0 then
+    reset()
+    return
+  end
   player:update()
   for i=1,#collectables do
     collectables[i]:check_collision(player)
     collectables[i]:update()
+  end
+
+  for i=1,#enemies do
+    enemies[i]:check_collision(player)
+    enemies[i]:update()
   end
   
   cam:update()
@@ -35,8 +48,13 @@ function _draw()
   for i=1,#collectables do
     collectables[i]:draw()
   end
+
+  for i=1,#enemies do
+    enemies[i]:draw()
+  end
+
   player:draw()
-  print("time: "..ceil(time()*10)/10, cam.x, cam.y, 7)
+  print("time: "..timer, 0, 0, 7)
 end
 
 function collide_map(obj,aim,flag)

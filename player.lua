@@ -17,7 +17,15 @@ player = {
     onwall = "none"
  }
  
- 
+ function player:reset()
+    self.x = 24
+    self.y = 24
+    self.dx = 0
+    self.dy = 0
+    self.xflp = true
+    self.onwall = "none"
+ end
+
 function player:update()
     self:input()
     self:move()
@@ -87,11 +95,11 @@ function player:input()
     if btn(5) and self.onground then
         self.dy = self.jumppower
     elseif btn(5) and self.onwall == "right" then
-        self.dy = self.jumppower / 2
+        self.dy = self.jumppower
         self.dx = -self.walljump
         self.onwall = "none"
     elseif btn(5) and self.onwall == "left" then
-        self.dy = self.jumppower / 2
+        self.dy = self.jumppower
         self.dx = self.walljump
         self.onwall = "none"
     end
