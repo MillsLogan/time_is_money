@@ -2,6 +2,7 @@
 
 
 function _init()
+  last_time=time()
   gravity=0.3
   groundfriction=0.70
   airfriction=0.98
@@ -15,11 +16,15 @@ end
     
 
 function _update()
+  delta_t=time()-last_time
+  last_time=time()
+
+  player:update()
   for i=1,#collectables do
     collectables[i]:check_collision(player)
     collectables[i]:update()
   end
-  player:update()
+  
   cam:update()
 end
    
