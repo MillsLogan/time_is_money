@@ -15,7 +15,13 @@ cam = {
     if self.x > map_end - 128 then
         self.x = map_end - 128
     end
- 
+
+    if self.y < map_top then
+        self.y = map_top
+    end
+    if self.y > map_bottom - 128 then
+        self.y = map_bottom - 128
+    end
  
     camera(self.x, self.y)
  end

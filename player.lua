@@ -136,16 +136,16 @@ function player:move()
             self.onground = false
         else
             self.dy = 0
-            self.onground = true
             self.y = flr(new_y/8)*8
+            self.onground = true
         end
     elseif self.dy < 0 then
         if not collide_map({x=new_x, y=new_y, w=self.w, h=self.h}, "up", 0) then
             self.y = new_y
             self.onground = false
         else
-            self.dy = 0
-            self.y = flr(new_y/8)*8
+            self.dy = ceil(self.dy/2)
+            self:move()
         end
     end
  
