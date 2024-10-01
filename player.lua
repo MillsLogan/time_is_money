@@ -12,7 +12,7 @@ player = {
     max_dy = 4,
     onground = false,
     jumppower = -3,
-    walljump = 3,
+    walljump = 1.5,
     xflp = true,
     onwall = "none"
  }
@@ -94,11 +94,11 @@ function player:input()
 
     if btn(5) and self.onground then
         self.dy = self.jumppower
-    elseif btn(5) and self.onwall == "right" then
+    elseif btnp(5) and self.onwall == "right" then
         self.dy = self.jumppower
         self.dx = -self.walljump
         self.onwall = "none"
-    elseif btn(5) and self.onwall == "left" then
+    elseif btnp(5) and self.onwall == "left" then
         self.dy = self.jumppower
         self.dx = self.walljump
         self.onwall = "none"
@@ -131,7 +131,9 @@ function player:move()
    
     -- Vertical collisions
     if self.dy > 0 then
-        if not collide_map({x=new_x, y=new_y, w=self.w, h=self.h}, "down", 0) then
+        if not collide_map({x=new_x, y=new_y, w=self.w, h=self.h}, "down", 0) and 
+        not collide_map({x=new_x, y=new_y, w=self.w, h=self.h}, "down", 1) then
+            
             self.y = new_y
             self.onground = false
         else
@@ -171,6 +173,10 @@ function player:move()
         end
     else
         self.onwall = "none"
+    end
+
+    if collide_map(self, "down", 2) then
+        win()
     end
 end
  
