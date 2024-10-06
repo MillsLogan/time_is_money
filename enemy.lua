@@ -42,11 +42,12 @@ function new_fly(x, y, flip)
 
         if player.x + player.w > self.x and player.x < self.x + self.w and player.y + player.h > self.y and player.y < self.y + self.h then
             if prev_player_y + player.h <=self.y then
-                sfx(0)
+                sfx(6)
                 self.defeated = true
                 player.dy = player.jumppower
             else
-                death()
+                death = true
+                death_screen()
             end
         end
     end

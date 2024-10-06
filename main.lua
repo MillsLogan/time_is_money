@@ -2,6 +2,7 @@
 
 
 function _init()
+  music(0)
   timer=5
   gravity=0.35
   groundfriction=0.70
@@ -17,6 +18,9 @@ function _init()
   map_bottom=27*8
   has_won = false
   tries = 0
+  double_jumps = {}
+  death = false
+  out_of_time = false
 end
     
 
@@ -53,7 +57,29 @@ function reset()
   enemies = {new_fly(35*8,16*8), new_fly(26*8, 25*8, true), new_fly(23*8, 7*8, false)}
 end
 
+function out_of_time_screen()
+  out_of_time = true
+  player:death()
+  print("out of time", cam.x+24, cam.y+60, 7)
+  print("press c to restart", cam.x+24, cam.y+70, 7)
+  print("tries: "..tries, cam.x+24, cam.y+80, 7)
+  if btnp(4) then
+    out_of_time = false
+    reset()
+  end
+end
+
 function _update()
+  if death then
+    return
+  elseif out_of_time then
+    return
+  end
+
+  if not stat(57) then
+    music(0)
+  end
+
   if not started or has_won then
     return
   end
@@ -61,7 +87,7 @@ function _update()
   timer-=0.033
 
   if timer<=0 then
-    reset()
+    out_of_time = true
     return
   end
   local prev_player_y=player.y
@@ -80,11 +106,28 @@ function _update()
   cam:update()
 end
    
-function death()
-  reset()
+function death_screen()
+  music(0)
+  player:death()
+  print("you died", cam.x+24, cam.y+60, 7)
+  print("press c to respawn", cam.x+24, cam.y+70, 7)
+  print("time remaining: "..timer, cam.x+24, cam.y+80, 7)
+  print("tries: "..tries, cam.x+24, cam.y+90, 7)
+  if btnp(4) then
+    death = false
+    reset()
+  end
 end
 
 function _draw()
+  if death then
+    death_screen()
+    return;
+  elseif out_of_time then
+    out_of_time_screen()
+    return
+  end
+
   if not started then
     main_screen()
     return
@@ -121,7 +164,18 @@ function _draw()
   end
 
   player:draw()
-  print("time: "..timer, cam.x, cam.y, 7)
+  for i=1,#double_jumps do
+    print("-0.5s", double_jumps[i].x, double_jumps[i].y, 8)
+    double_jumps[i].timer+=0.033
+    if double_jumps[i].timer>0.5 then
+      deli(double_jumps, i)
+    end
+  end
+  if timer < 2 then
+    print("time: "..timer, cam.x, cam.y, 8)
+  else
+    print("time: "..timer, cam.x, cam.y, 11)
+  end
 end
 
 function collide_map(obj,aim,flag)

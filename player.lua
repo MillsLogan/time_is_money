@@ -109,8 +109,14 @@ function player:input()
     elseif btnp(5) and self.onwall == "none" and self.double_available then
         self.dy = self.jumppower
         self.double_available = false
-        timer -= 2
+        sfx(7)
+        double_jumps[#double_jumps+1] = {x=self.x, y=self.y+8, timer=0}
+        timer -= 0.5
     end
+end
+
+function player:death()
+    spr(64, self.x, self.y, 1, 1, self.xflp, true)
 end
  
  

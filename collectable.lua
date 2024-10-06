@@ -41,7 +41,7 @@ function new_money(x, y)
     local money = new_collectable(x, y, new_animation(5, 8, 0.1, 4))
     
     function money:collect()
-        sfx(0)
+        sfx(5)
         self.collected = true
         collected_money += 1
         timer += 3
