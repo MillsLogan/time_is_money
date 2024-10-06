@@ -11,10 +11,11 @@ player = {
     max_dx = 2,
     max_dy = 4,
     onground = false,
-    jumppower = -3,
+    jumppower = -3.2,
     walljump = 1.5,
     xflp = true,
-    onwall = "none"
+    onwall = "none",
+    double_available = true
  }
  
  function player:reset()
@@ -60,11 +61,14 @@ end
  
  
 function player:input()
-    
     if self.onwall == "none" then
         self.dy = self.dy + gravity
     else
-        self.dy = self.dy + gravity / 2
+        if self.dy > 0 then
+            self.dy = self.dy + gravity / 2
+        else
+            self.dy = self.dy + gravity
+        end
     end
     
     if self.onground then
@@ -102,6 +106,10 @@ function player:input()
         self.dy = self.jumppower
         self.dx = self.walljump
         self.onwall = "none"
+    elseif btnp(5) and self.onwall == "none" and self.double_available then
+        self.dy = self.jumppower
+        self.double_available = false
+        timer -= 2
     end
 end
  
@@ -133,13 +141,13 @@ function player:move()
     if self.dy > 0 then
         if not collide_map({x=new_x, y=new_y, w=self.w, h=self.h}, "down", 0) and 
         not collide_map({x=new_x, y=new_y, w=self.w, h=self.h}, "down", 1) then
-            
             self.y = new_y
             self.onground = false
         else
             self.dy = 0
             self.y = flr(new_y/8)*8
             self.onground = true
+            self.double_available = true
         end
     elseif self.dy < 0 then
         if not collide_map({x=new_x, y=new_y, w=self.w, h=self.h}, "up", 0) then
